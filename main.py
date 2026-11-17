@@ -46,7 +46,8 @@ class DynamicThreadOptimizer:
         options = {
             'format': format_options,  # Максимальное качество
             'merge_output_format': 'mp4',
-            'outtmpl': '%(title)s.%(ext)s',
+            # downloads/<channel>/<playlist>/<title>.mp4; single videos go to "Без плейлиста"
+            'outtmpl': 'downloads/%(channel,uploader|Unknown channel)s/%(playlist_title|Без плейлиста)s/%(title)s.%(ext)s',
             'n_threads': self.best_threads,
             'http_chunk_size': 1048576,  # 1 MB
             'fragment_retries': 10,

@@ -31,9 +31,15 @@ pipeline {
         stage('📂 Move to SMB folder') {
             steps {
                 sh '''
-                    echo "📦 Moving .mp4 files to /var/smb/"
-                    ls -lh *.mp4 || echo "⚠️ No .mp4 files found"
-                    [ -f *.mp4 ] && mv *.mp4 /var/smb/ || echo "⚠️ Nothing to move"
+                    echo "📦 Moving finished .mp4 files to /var/smb/, keeping <channel>/<playlist>/ folders"
+                    if [ ! -d downloads ]; then echo "⚠️ Nothing downloaded"; exit 0; fi
+                    cd downloads
+                    # skip yt-dlp intermediate streams like "name.f401.mp4" left by a failed merge
+                    find . -type f -name '*.mp4' ! -name '*.f[0-9]*.mp4' -exec sh -c '
+                        for f; do
+                            mkdir -p "/var/smb/$(dirname "$f")" && mv -n "$f" "/var/smb/$f" && echo "  ✅ $f"
+                        done' sh {} +
+                    echo "ℹ️ mp4 left in workspace: $(find . -type f -name '*.mp4' | wc -l)"
                 '''
             }
         }
